@@ -1,6 +1,7 @@
 "use client"
 
 import { CommandItem } from "@/components/ui/command"
+import Link from "next/link"
 
 import { useState, useEffect } from "react"
 import { AppLayout } from "@/components/layout/app-layout"
@@ -34,6 +35,7 @@ import {
   Phone,
   ChevronsUpDown,
   Check,
+  Eye,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -321,15 +323,6 @@ export default function CobrancaPontoFiscalPage() {
   }
 
   async function handleCriarCobranca() {
-    if (role !== "admin") {
-      toast({
-        title: "Acesso negado",
-        description: "Você não tem permissão para realizar esta ação.",
-        variant: "destructive",
-      })
-      return
-    }
-
     if (empresasSelecionadasCobranca.length === 0) {
       toast({
         title: "Selecione empresas",
@@ -397,7 +390,6 @@ export default function CobrancaPontoFiscalPage() {
               : `${result.logs_criados} cobranças foram criadas e serão processadas pelo n8n.`,
         })
 
-        // LIMPAR CAMPOS APÓS SUCESSO
         setEmpresasSelecionadasCobranca([])
         setMensagemCobranca("Olá! Solicitamos o envio do ponto dos funcionários referente ao mês atual. Por favor, envie o mais breve possível. Obrigado!")
         setArquivoAudioUrl("")
@@ -518,7 +510,7 @@ export default function CobrancaPontoFiscalPage() {
         </div>
 
         {/* Cards de estatísticas */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Total Empresas</CardTitle>
@@ -641,38 +633,25 @@ export default function CobrancaPontoFiscalPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>
-                           <Checkbox 
-                            checked={empresasSelecionadasCobranca.length > 0 && empresasSelecionadasCobranca.length === empresasFiltradas.filter(e => e.telefone_cobranca || e.telefone).length}
-                            onCheckedChange={handleSelecionarTodas}
-                           />
-                        </TableHead>
                         <TableHead className="w-[80px]">Código</TableHead>
                         <TableHead>Empresa</TableHead>
                         <TableHead>Responsável</TableHead>
                         <TableHead>Telefone Cobrança</TableHead>
                         <TableHead className="w-[80px]">Dia</TableHead>
                         <TableHead className="w-[140px]">Status Ponto</TableHead>
-                        <TableHead className="w-[60px]">Ações</TableHead>
+                        <TableHead className="w-[80px]">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {empresasFiltradas.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                          <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                             Nenhuma empresa encontrada
                           </TableCell>
                         </TableRow>
                       ) : (
                         empresasFiltradas.map((empresa) => (
                           <TableRow key={empresa.id}>
-                            <TableCell>
-                              <Checkbox 
-                                checked={empresasSelecionadasCobranca.includes(empresa.id)}
-                                onCheckedChange={(checked) => handleSelecionarEmpresaCobranca(empresa.id, !!checked)}
-                                disabled={!empresa.telefone_cobranca && !empresa.telefone}
-                              />
-                            </TableCell>
                             <TableCell className="font-mono">{empresa.codigo}</TableCell>
                             <TableCell className="font-medium">{empresa.razao_social}</TableCell>
                             <TableCell>{empresa.responsavel || "-"}</TableCell>
@@ -703,17 +682,24 @@ export default function CobrancaPontoFiscalPage() {
                               </Select>
                             </TableCell>
                             <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-destructive"
-                                onClick={() => {
-                                  setEmpresaParaRemover(empresa)
-                                  setDialogRemoverAberto(true)
-                                }}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                              <div className="flex items-center gap-1">
+                                <Link href={`/empresas/${empresa.empresa_id}`}>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                </Link>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-destructive"
+                                  onClick={() => {
+                                    setEmpresaParaRemover(empresa)
+                                    setDialogRemoverAberto(true)
+                                  }}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))
@@ -823,35 +809,81 @@ export default function CobrancaPontoFiscalPage() {
                 </CardContent>
               </Card>
 
-              {/* Lista resumida de empresas selecionadas */}
+              {/* Lista de empresas para selecionar */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Empresas Selecionadas</CardTitle>
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Building2 className="h-5 w-5" />
+                      Selecionar Empresas
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        checked={
+                          empresasFiltradas.filter((e) => e.telefone_cobranca || e.telefone).length > 0 &&
+                          empresasSelecionadasCobranca.length ===
+                          empresasFiltradas.filter((e) => e.telefone_cobranca || e.telefone).length
+                        }
+                        onCheckedChange={(checked) => handleSelecionarTodas(!!checked)}
+                      />
+                      <Label className="text-sm font-normal">Selecionar todas</Label>
+                    </div>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="max-h-[400px] overflow-y-auto space-y-2">
-                    {empresasSelecionadasCobranca.length === 0 ? (
-                      <p className="text-center py-8 text-muted-foreground">Nenhuma empresa selecionada na aba anterior.</p>
-                    ) : (
-                      empresasCobranca
-                        .filter(e => empresasSelecionadasCobranca.includes(e.id))
-                        .map(e => (
-                          <div key={e.id} className="flex items-center justify-between p-2 rounded border bg-card">
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium">{e.razao_social}</span>
-                              <span className="text-xs text-muted-foreground">{e.codigo}</span>
-                            </div>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 text-destructive"
-                              onClick={() => handleSelecionarEmpresaCobranca(e.id, false)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                  <div className="mb-4 flex gap-2">
+                    <Select value={filtroDia} onValueChange={(v) => setFiltroDia(v as typeof filtroDia)}>
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Filtrar dia" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="todos">Todos</SelectItem>
+                        <SelectItem value="dia01">Dia 01</SelectItem>
+                        <SelectItem value="dia25">Dia 25</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      value={filtroStatusPonto}
+                      onValueChange={(v) => setFiltroStatusPonto(v as typeof filtroStatusPonto)}
+                    >
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="todos">Todos</SelectItem>
+                        <SelectItem value="PENDENTE">Pendente</SelectItem>
+                        <SelectItem value="RECEBIDO">Recebido</SelectItem>
+                        <SelectItem value="NAO_RECEBIDO">Não Recebido</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="max-h-[400px] space-y-2 overflow-y-auto">
+                    {empresasFiltradas.map((empresa) => {
+                      const temTelefone = empresa.telefone_cobranca || empresa.telefone
+                      return (
+                        <div
+                          key={empresa.id}
+                          className={`flex items-center gap-3 rounded-lg border p-3 ${!temTelefone ? "opacity-50" : ""
+                            }`}
+                        >
+                          <Checkbox
+                            checked={empresasSelecionadasCobranca.includes(empresa.id)}
+                            onCheckedChange={(checked) => handleSelecionarEmpresaCobranca(empresa.id, !!checked)}
+                            disabled={!temTelefone}
+                          />
+                          <div className="flex-1">
+                            <p className="font-medium">
+                              {empresa.codigo} - {empresa.razao_social}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {empresa.responsavel || "Sem responsável"} |{" "}
+                              {empresa.telefone_cobranca || empresa.telefone || "Sem telefone"} | Dia{" "}
+                              {String(empresa.dia_cobranca).padStart(2, "0")}
+                            </p>
                           </div>
-                        ))
-                    )}
+                        </div>
+                      )
+                    })}
                   </div>
                 </CardContent>
               </Card>
@@ -861,64 +893,57 @@ export default function CobrancaPontoFiscalPage() {
           {/* Tab Histórico */}
           <TabsContent value="historico" className="space-y-4">
             <Card>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Data/Hora</TableHead>
-                      <TableHead>Empresa</TableHead>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Detalhes</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {logsCobranca.length === 0 ? (
+              <CardHeader>
+                <CardTitle>Histórico de Cobranças</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {logsCobranca.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">Nenhuma cobrança registrada ainda</div>
+                ) : (
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                          Nenhum registro encontrado para este mês
-                        </TableCell>
+                        <TableHead>Criado em</TableHead>
+                        <TableHead>Código</TableHead>
+                        <TableHead>Empresa</TableHead>
+                        <TableHead>Telefone</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Enviado em</TableHead>
+                        <TableHead>Mensagem</TableHead>
                       </TableRow>
-                    ) : (
-                      logsCobranca.map((log) => (
-                        <TableRow key={log.id}>
-                          <TableCell>
-                            {new Date(log.created_at).toLocaleString("pt-BR")}
-                          </TableCell>
-                          <TableCell>
-                            <div className="font-medium">{log.empresa?.razao_social}</div>
-                            <div className="text-xs text-muted-foreground">{log.empresa?.codigo}</div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{log.tipo_mensagem}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            {(() => {
-                              const config = getStatusEnvioBadge(log.status_envio, log.webhook_response)
-                              return (
-                                <Badge variant={config.variant} className={config.className}>
-                                  {config.label}
-                                </Badge>
-                              )
-                            })()}
-                          </TableCell>
-                          <TableCell>
-                            {log.status_envio === 'ERRO' && (
-                              <div className="text-xs text-red-500 max-w-[200px] truncate" title={log.mensagem_erro || ""}>
-                                {log.mensagem_erro}
-                              </div>
-                            )}
-                            {log.data_agendamento && (
-                              <div className="text-xs text-blue-500">
-                                Agendado: {new Date(log.data_agendamento).toLocaleString("pt-BR")}
-                              </div>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {logsCobranca.map((log) => {
+                        const statusBadge = getStatusEnvioBadge(log.status_envio, log.webhook_resposta)
+                        return (
+                          <TableRow key={log.id}>
+                            <TableCell className="text-sm">
+                              {new Date(log.created_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}
+                            </TableCell>
+                            <TableCell className="font-mono">{log.empresa_codigo}</TableCell>
+                            <TableCell>{log.empresa_nome}</TableCell>
+                            <TableCell>{log.telefone_destino}</TableCell>
+                            <TableCell>
+                              <Badge variant={statusBadge.variant} className={statusBadge.className}>
+                                {statusBadge.label}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {log.webhook_enviado_em
+                                ? new Date(log.webhook_enviado_em).toLocaleString("pt-BR", {
+                                  timeZone: "America/Sao_Paulo",
+                                })
+                                : "-"}
+                            </TableCell>
+                            <TableCell className="max-w-[200px] truncate">
+                              {log.mensagem_enviada}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -926,45 +951,44 @@ export default function CobrancaPontoFiscalPage() {
 
         {/* Dialog Adicionar Empresa */}
         <Dialog open={dialogAdicionarAberto} onOpenChange={setDialogAdicionarAberto}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Adicionar Empresa para Cobrança</DialogTitle>
+              <DialogTitle>Adicionar Empresa à Cobrança de Ponto</DialogTitle>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Empresa</Label>
+                <Label>Buscar e Selecionar Empresa</Label>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className="w-full justify-between"
-                    >
+                    <Button variant="outline" role="combobox" className="w-full justify-between bg-transparent">
                       {empresaSelecionada
                         ? empresasDisponiveis.find((e) => e.id === empresaSelecionada)?.razao_social
-                        : "Selecionar empresa..."}
+                        : "Selecione uma empresa"}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[350px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Buscar empresa..." onValueChange={setBuscaEmpresaDisponivel} />
-                      <CommandList>
+                  <PopoverContent className="w-[400px] p-0">
+                    <Command shouldFilter={false}>
+                      <CommandInput
+                        placeholder="Buscar empresa..."
+                        value={buscaEmpresaDisponivel}
+                        onValueChange={setBuscaEmpresaDisponivel}
+                      />
+                      <CommandList className="max-h-[300px] overflow-y-auto">
                         <CommandEmpty>Nenhuma empresa encontrada.</CommandEmpty>
                         <CommandGroup>
                           {empresasDisponiveisFiltradas.map((empresa) => (
                             <CommandItem
                               key={empresa.id}
-                              value={empresa.razao_social}
-                              onSelect={() => {
-                                setEmpresaSelecionada(empresa.id)
-                                setTelefoneCobranca(empresa.telefone || "")
+                              value={empresa.id}
+                              onSelect={(currentValue) => {
+                                setEmpresaSelecionada(currentValue === empresaSelecionada ? "" : currentValue)
                               }}
                             >
                               <Check
                                 className={cn(
                                   "mr-2 h-4 w-4",
-                                  empresaSelecionada === empresa.id ? "opacity-100" : "opacity-0"
+                                  empresaSelecionada === empresa.id ? "opacity-100" : "opacity-0",
                                 )}
                               />
                               {empresa.codigo} - {empresa.razao_social}
@@ -977,13 +1001,13 @@ export default function CobrancaPontoFiscalPage() {
                 </Popover>
               </div>
               <div className="space-y-2">
-                <Label>Dia da Cobrança</Label>
+                <Label>Dia de Cobrança</Label>
                 <Select
                   value={String(diaCobrancaSelecionado)}
-                  onValueChange={(v) => setDiaCobrancaSelecionado(Number(v))}
+                  onValueChange={(v) => setDialogAdicionarAberto ? setDiaCobrancaSelecionado(Number(v)) : null}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione o dia" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1">Dia 01</SelectItem>
@@ -992,14 +1016,14 @@ export default function CobrancaPontoFiscalPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Telefone para Cobrança (WhatsApp)</Label>
+                <Label>Telefone para Cobrança (opcional)</Label>
                 <Input
-                  placeholder="Ex: 5511999999999"
+                  placeholder="Ex: 5531999887766"
                   value={telefoneCobranca}
                   onChange={(e) => setTelefoneCobranca(e.target.value)}
                 />
-                <p className="text-[10px] text-muted-foreground">
-                  Se vazio, usará o telefone principal do cadastro.
+                <p className="text-xs text-muted-foreground">
+                  Se não informado, será usado o telefone cadastrado na empresa
                 </p>
               </div>
             </div>
@@ -1021,9 +1045,8 @@ export default function CobrancaPontoFiscalPage() {
             <DialogHeader>
               <DialogTitle>Remover Empresa</DialogTitle>
             </DialogHeader>
-            <p className="py-4">
-              Tem certeza que deseja remover a empresa <strong>{empresaParaRemover?.razao_social}</strong> da lista de
-              cobrança?
+            <p>
+              Deseja remover a empresa <strong>{empresaParaRemover?.razao_social}</strong> da cobrança de ponto?
             </p>
             <DialogFooter>
               <Button variant="outline" onClick={() => setDialogRemoverAberto(false)}>
@@ -1037,18 +1060,19 @@ export default function CobrancaPontoFiscalPage() {
           </DialogContent>
         </Dialog>
 
-        {/* Dialog Reset Tudo */}
+        {/* Dialog Reset */}
         <Dialog open={dialogResetAberto} onOpenChange={setDialogResetAberto}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle className="text-destructive">Resetar Todos os Status</DialogTitle>
+              <DialogTitle>Resetar Todos os Status</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              <p className="text-sm font-medium text-red-600">
-                ATENÇÃO: Esta ação irá resetar o status de ponto de TODAS as empresas para "Pendente".
+            <div className="space-y-4">
+              <p className="text-muted-foreground">
+                Esta ação irá resetar todos os status de envio para &quot;Aguardando&quot; e todos os status de ponto
+                para &quot;Pendente&quot;.
               </p>
               <div className="space-y-2">
-                <Label>Digite "confirmar" para prosseguir:</Label>
+                <Label>Digite &quot;confirmar&quot; para continuar:</Label>
                 <Input
                   value={confirmacaoReset}
                   onChange={(e) => setConfirmacaoReset(e.target.value)}
@@ -1060,9 +1084,57 @@ export default function CobrancaPontoFiscalPage() {
               <Button variant="outline" onClick={() => setDialogResetAberto(false)}>
                 Cancelar
               </Button>
-              <Button variant="destructive" onClick={handleResetarTudo} disabled={loadingAcao}>
+              <Button
+                variant="destructive"
+                onClick={handleResetarTudo}
+                disabled={loadingAcao || confirmacaoReset.toLowerCase() !== "confirmar"}
+              >
                 {loadingAcao && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Resetar Tudo agora
+                Resetar Tudo
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog Progresso de Envio */}
+        <Dialog
+          open={dialogProgressoAberto}
+          onOpenChange={(open) => !enviandoCobrancas && setDialogProgressoAberto(open)}
+        >
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Enviando Cobranças</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Progresso geral</span>
+                  <span>{Math.round(progressoTotal)}%</span>
+                </div>
+                <Progress value={progressoTotal} />
+              </div>
+              <div className="max-h-[300px] space-y-2 overflow-y-auto">
+                {progressoEnvio.map((item) => (
+                  <div key={item.empresa_id} className="flex items-center justify-between rounded-lg border p-3">
+                    <span className="font-medium">{item.empresa_nome}</span>
+                    <div className="flex items-center gap-2">
+                      {item.status === "aguardando" && <Clock className="h-4 w-4 text-muted-foreground" />}
+                      {item.status === "enviando" && <Loader2 className="h-4 w-4 animate-spin text-blue-500" />}
+                      {item.status === "sucesso" && <CheckCircle className="h-4 w-4 text-green-500" />}
+                      {item.status === "erro" && (
+                        <div className="flex items-center gap-1">
+                          <AlertCircle className="h-4 w-4 text-red-500" />
+                          <span className="text-xs text-red-500">{item.mensagemErro}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setDialogProgressoAberto(false)} disabled={enviandoCobrancas}>
+                {enviandoCobrancas ? "Aguarde..." : "Fechar"}
               </Button>
             </DialogFooter>
           </DialogContent>
