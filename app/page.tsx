@@ -1,7 +1,7 @@
 import { AppLayout } from '@/components/layout/app-layout'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { AlertCircle, Clock, CheckCircle2, Users, TrendingUp, Building2, Activity } from 'lucide-react'
-import { getAtividades, getOnboardings, getEmpresas } from '@/lib/supabase/services/api'
+import { getAtividades, getOnboardings, getEmpresas } from '@/lib/services/api'
 import { Badge } from '@/components/ui/badge'
 
 export default async function DashboardPage() {
