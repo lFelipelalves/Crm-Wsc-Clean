@@ -173,13 +173,6 @@ export default async function DashboardPage() {
           </TabsList>
 
           <TabsContent value="geral" className="space-y-6 animate-in fade-in-50 duration-500">
-            <div className="flex flex-col space-y-2">
-              <h2 className="text-2xl font-bold tracking-tight">Status Global</h2>
-              <p className="text-sm text-muted-foreground">Resumo de todas as atividades ativas</p>
-            </div>
-
-            {renderMetrics(atividades, "WSC Contabilidade")}
-
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card className="border-l-4 border-l-blue-600 shadow-sm transition-all hover:shadow-md">
                 <CardHeader className="pb-2">
@@ -221,71 +214,35 @@ export default async function DashboardPage() {
               </Card>
             </div>
 
-            <div className="flex flex-col space-y-2 pt-4">
-              <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-red-500" />
-                Requerem atenção imediata
-              </h2>
-              <p className="text-sm text-muted-foreground">Atividades atrasadas ou pendentes com o cliente</p>
+            <div className="grid gap-6 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-bold flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-blue-500" />
+                    Atividades Recentes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground italic">
+                    Nenhuma atividade recente para exibir.
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-bold flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-green-500" />
+                    Desempenho Semanal
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-32 flex items-center justify-center border-2 border-dashed rounded-lg bg-muted/20">
+                    <PieChart className="h-8 w-8 text-muted-foreground/30" />
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-
-            <Card className="border-none shadow-sm overflow-hidden">
-              <CardContent className="p-0">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm text-left">
-                    <thead className="bg-muted/50 text-muted-foreground font-medium border-b">
-                      <tr>
-                        <th className="px-4 py-3">Empresa</th>
-                        <th className="px-4 py-3">Atividade</th>
-                        <th className="px-4 py-3">Status</th>
-                        <th className="px-4 py-3">Responsável</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      {atividades
-                        .filter(a => a.status === 'ATRASADO' || a.status === 'PENDENTE_CLIENTE')
-                        .slice(0, 10)
-                        .map(atividade => {
-                          const empresa = empresas.find(e => e.id === atividade.empresaId)
-                          return (
-                            <tr key={atividade.id} className="hover:bg-muted/30 transition-colors">
-                              <td className="px-4 py-3 font-medium">
-                                {empresa?.razaoSocial || 'N/A'}
-                                <span className="block text-xs text-muted-foreground font-normal">
-                                  Cod: {empresa?.codigoEmpresa}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3">
-                                <Badge variant="outline" className="text-[10px] uppercase font-bold">
-                                  {atividade.tipoAtividade.replace(/_/g, ' ')}
-                                </Badge>
-                              </td>
-                              <td className="px-4 py-3">
-                                <Badge
-                                  variant={atividade.status === 'ATRASADO' ? "destructive" : "secondary"}
-                                  className={atividade.status === 'PENDENTE_CLIENTE' ? "bg-amber-100 text-amber-700 border-amber-200" : ""}
-                                >
-                                  {atividade.status.replace(/_/g, ' ')}
-                                </Badge>
-                              </td>
-                              <td className="px-4 py-3 text-muted-foreground italic">
-                                {atividade.responsavelInterno}
-                              </td>
-                            </tr>
-                          )
-                        })}
-                      {atividades.filter(a => a.status === 'ATRASADO' || a.status === 'PENDENTE_CLIENTE').length === 0 && (
-                        <tr>
-                          <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
-                            Nenhuma atividade crítica encontrada. Bom trabalho! 🎉
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
 
           <TabsContent value="ponto" className="animate-in slide-in-from-right-2 duration-300">
