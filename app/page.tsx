@@ -1,7 +1,7 @@
 import { AppLayout } from '@/components/layout/app-layout'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { AlertCircle, Clock, CheckCircle2, Users, TrendingUp } from 'lucide-react'
-import { getAtividades, getOnboardings, getEmpresas } from '@/lib/services/api'
+import { AlertCircle, Clock, CheckCircle2, Users, TrendingUp, Building2, Activity } from 'lucide-react'
+import { getAtividades, getOnboardings, getEmpresas } from '@/lib/supabase/services/api'
 import { Badge } from '@/components/ui/badge'
 
 export default async function DashboardPage() {
@@ -31,135 +31,165 @@ export default async function DashboardPage() {
     })
     .slice(0, 5)
 
+  const totalAtividades = atividades.length
+  const progressoPercentual = totalAtividades > 0 ? Math.round((feitos / totalAtividades) * 100) : 0
+
   return (
     <AppLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Controle central de todas as atividades
-          </p>
+      <div className="space-y-8">
+        {/* Header with subtle dev badge */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400 bg-clip-text text-transparent">
+              Visão Geral
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Acompanhe o desempenho e status das atividades em tempo real
+            </p>
+          </div>
+          <Badge variant="outline" className="text-xs px-2 py-1">
+            Beta
+          </Badge>
         </div>
 
-        {/* Main Metrics */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-destructive" />
+        {/* Hero Stats */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="border-l-4 border-l-red-500">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" />
                 Atrasados
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{atrasados}</div>
-              <p className="text-xs text-muted-foreground">requerem atenção</p>
+              <div className="text-3xl font-bold text-red-600 dark:text-red-400">{atrasados}</div>
+              <p className="text-xs text-muted-foreground mt-1">Requerem atenção imediata</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Clock className="h-4 w-4 text-amber-500" />
-                Pendente Cliente
+          <Card className="border-l-4 border-l-amber-500">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Aguardando Cliente
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{pendentesCliente}</div>
-              <p className="text-xs text-muted-foreground">aguardando retorno</p>
+              <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">{pendentesCliente}</div>
+              <p className="text-xs text-muted-foreground mt-1">Pendentes de retorno</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-blue-500" />
-                Em Andamento
+          <Card className="border-l-4 border-l-blue-500">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                Em Progresso
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{emAndamento}</div>
-              <p className="text-xs text-muted-foreground">em progresso</p>
+              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{emAndamento}</div>
+              <p className="text-xs text-muted-foreground mt-1">Atividades ativas</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-500" />
+          <Card className="border-l-4 border-l-green-500">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4" />
                 Concluídos
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{feitos}</div>
-              <p className="text-xs text-muted-foreground">mês atual</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Users className="h-4 w-4 text-purple-500" />
-                Empresas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{empresas.filter(e => e.ativo).length}</div>
-              <p className="text-xs text-muted-foreground">ativas</p>
+              <div className="text-3xl font-bold text-green-600 dark:text-green-400">{feitos}</div>
+              <p className="text-xs text-muted-foreground mt-1">Finalizados este mês</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Summary Cards */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base font-medium">Onboarding</CardTitle>
+        {/* Progress Overview */}
+        <div className="grid gap-6 md:grid-cols-3">
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Progresso Geral
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Em Andamento</span>
-                <span className="font-semibold">{onboardingEmAndamento}</span>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Taxa de Conclusão</span>
+                  <span className="font-semibold">{progressoPercentual}%</span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                  <div
+                    className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500"
+                    style={{ width: `${progressoPercentual}%` }}
+                  />
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Concluído</span>
-                <span className="font-semibold">{onboardingConcluido}</span>
+              <div className="grid grid-cols-2 gap-4 pt-4">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Total de Atividades</p>
+                  <p className="text-2xl font-bold">{totalAtividades}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Empresas Ativas</p>
+                  <p className="text-2xl font-bold">{empresas.filter(e => e.ativo).length}</p>
+                </div>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base font-medium">Total Atividades</CardTitle>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5" />
+                Onboarding
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{atividades.length}</div>
-              <p className="text-xs text-muted-foreground">registradas</p>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                  <span className="text-sm font-medium">Em Andamento</span>
+                  <span className="text-xl font-bold text-blue-600 dark:text-blue-400">{onboardingEmAndamento}</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                  <span className="text-sm font-medium">Concluídos</span>
+                  <span className="text-xl font-bold text-green-600 dark:text-green-400">{onboardingConcluido}</span>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Critical Activities */}
         {criticas.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-destructive" />
-                Atividades Críticas e Atrasadas
+          <Card className="border-red-200 dark:border-red-900">
+            <CardHeader className="bg-red-50 dark:bg-red-950/20">
+              <CardTitle className="flex items-center gap-2 text-red-700 dark:text-red-400">
+                <AlertCircle className="h-5 w-5" />
+                Atividades Críticas ({criticas.length})
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <div className="space-y-3">
                 {criticas.map((atividade) => {
                   const empresa = empresas.find((e) => e.id === atividade.empresaId)
                   return (
-                    <div key={atividade.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <p className="font-medium text-sm">{empresa?.razaoSocial}</p>
-                        <p className="text-xs text-muted-foreground">{atividade.observacao || 'Sem observações'}</p>
+                    <div key={atividade.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
+                      <div className="flex-1">
+                        <p className="font-semibold text-sm">{empresa?.razaoSocial}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{atividade.observacao || 'Sem observações'}</p>
                       </div>
                       <div className="flex gap-2">
-                        <Badge variant="outline">{atividade.prioridade}</Badge>
-                        <Badge>{atividade.status}</Badge>
+                        <Badge variant={atividade.status === 'ATRASADO' ? 'destructive' : 'outline'}>
+                          {atividade.status}
+                        </Badge>
+                        {atividade.prioridade === 'CRITICA' && (
+                          <Badge variant="destructive">CRÍTICA</Badge>
+                        )}
                       </div>
                     </div>
                   )
