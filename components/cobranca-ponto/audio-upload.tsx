@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/hooks/use-toast"
-import { Upload, Trash2, Loader2 } from "lucide-react"
+import { Upload, Trash2, Loader2 } from "lucide-center"
+import { Upload as UploadIcon, Trash2 as TrashIcon, Loader2 as LoaderIcon } from "lucide-react"
 
 interface AudioUploadProps {
   onUploadComplete: (url: string) => void
@@ -128,12 +129,12 @@ export function AudioUpload({ onUploadComplete, maxSize = 25 }: AudioUploadProps
             <Button onClick={handleUpload} disabled={!file || uploading} type="button">
               {uploading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <LoaderIcon className="mr-2 h-4 w-4 animate-spin" />
                   Enviando...
                 </>
               ) : (
                 <>
-                  <Upload className="mr-2 h-4 w-4" />
+                  <UploadIcon className="mr-2 h-4 w-4" />
                   Enviar
                 </>
               )}
@@ -152,7 +153,7 @@ export function AudioUpload({ onUploadComplete, maxSize = 25 }: AudioUploadProps
         <div className="flex items-center gap-4 rounded-lg border p-4 bg-green-50 dark:bg-green-950">
           <audio src={uploadedUrl} controls className="flex-1" />
           <Button variant="ghost" size="sm" onClick={handleRemove} type="button">
-            <Trash2 className="h-4 w-4" />
+            <TrashIcon className="h-4 w-4" />
           </Button>
         </div>
       )}
