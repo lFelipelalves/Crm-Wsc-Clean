@@ -1,7 +1,6 @@
 "use client"
 
 import { CommandItem } from "@/components/ui/command"
-import Link from "next/link"
 
 import { useState, useEffect } from "react"
 import { AppLayout } from "@/components/layout/app-layout"
@@ -35,7 +34,6 @@ import {
   Phone,
   ChevronsUpDown,
   Check,
-  Eye,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -682,24 +680,17 @@ export default function CobrancaPontoFiscalPage() {
                               </Select>
                             </TableCell>
                             <TableCell>
-                              <div className="flex items-center gap-1">
-                                <Link href={`/empresas/${empresa.empresa_id}`}>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <Eye className="h-4 w-4" />
-                                  </Button>
-                                </Link>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 text-destructive"
-                                  onClick={() => {
-                                    setEmpresaParaRemover(empresa)
-                                    setDialogRemoverAberto(true)
-                                  }}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive"
+                                onClick={() => {
+                                  setEmpresaParaRemover(empresa)
+                                  setDialogRemoverAberto(true)
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </TableCell>
                           </TableRow>
                         ))

@@ -2,21 +2,26 @@ import { AppLayout } from '@/components/layout/app-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { getEmpresaById, getContatosByEmpresa } from '@/lib/services/api'
+import { createClient } from '@/lib/supabase/server'
 import { Building2, Phone, User, Mail, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 export default async function EmpresaDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const [empresa, contatos] = await Promise.all([
-    getEmpresaById(id),
-    getContatosByEmpresa(id),
-  ])
+  const supabase = await createClient()
+
+  const { data: empresa } = await supabase
+    .from("empresas")
+    .select("*")
+    .eq("id", id)
+    .single()
 
   if (!empresa) {
     notFound()
   }
+
+  const contatos: any[] = [] // Não há tabela de contatos ainda no Supabase
 
   const getTipoContatoLabel = (tipo: string) => {
     switch (tipo) {
@@ -42,7 +47,7 @@ export default async function EmpresaDetailPage({ params }: { params: Promise<{ 
           </Link>
           <div className="flex-1">
             <h1 className="text-3xl font-bold tracking-tight">Detalhes da Empresa</h1>
-            <p className="text-muted-foreground">{empresa.razaoSocial}</p>
+            <p className="text-muted-foreground">{empresa.razao_social}</p>
           </div>
           <Badge variant={empresa.ativo ? 'default' : 'outline'}>
             {empresa.ativo ? 'Ativa' : 'Inativa'}
@@ -59,7 +64,7 @@ export default async function EmpresaDetailPage({ params }: { params: Promise<{ 
           <CardContent className="grid gap-6 md:grid-cols-2">
             <div>
               <p className="text-sm text-muted-foreground">Código</p>
-              <p className="font-mono text-lg font-medium">{empresa.codigoEmpresa}</p>
+              <p className="font-mono text-lg font-medium">{empresa.codigo}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">CNPJ</p>
@@ -67,20 +72,20 @@ export default async function EmpresaDetailPage({ params }: { params: Promise<{ 
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Razão Social</p>
-              <p className="text-lg font-medium">{empresa.razaoSocial}</p>
+              <p className="text-lg font-medium">{empresa.razao_social}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Telefone Principal</p>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-muted-foreground" />
-                <p className="text-lg font-medium">{empresa.telefonePrincipal}</p>
+                <p className="text-lg font-medium">{empresa.telefone || 'Não informado'}</p>
               </div>
             </div>
             <div className="md:col-span-2">
               <p className="text-sm text-muted-foreground">Responsável Principal</p>
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
-                <p className="text-lg font-medium">{empresa.responsavelPrincipal}</p>
+                <p className="text-lg font-medium">{empresa.responsavel || 'Não informado'}</p>
               </div>
             </div>
           </CardContent>
