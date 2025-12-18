@@ -228,7 +228,7 @@ export default async function DashboardPage() {
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg font-bold flex items-center gap-2">

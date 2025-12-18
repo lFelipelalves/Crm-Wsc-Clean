@@ -15,12 +15,12 @@ const mainNav = [
 
 const atividadesNav = [
   { name: 'Cobrança de Ponto Fiscal', href: '/atividades/cobranca-ponto-fiscal', icon: DollarSign },
-  { name: 'Cobrança de Documento Fiscal', href: '/atividades/cobranca-documento-fiscal', icon: Receipt },
-  { name: 'Envio de Guias Fiscal', href: '/atividades/envio-guias-fiscal', icon: FileCheck },
-  { name: 'Envio de Documentos Contábil', href: '/atividades/envio-documentos-contabil', icon: FileText },
-  { name: 'Envio de Guias Contábil', href: '/atividades/envio-guias-contabil', icon: FileCheck },
-  { name: 'Cobrança de Recibo Aluguel', href: '/atividades/cobranca-recibo-aluguel', icon: DollarSign },
-  { name: 'Cobrança de Faturamento', href: '/atividades/cobranca-faturamento', icon: DollarSign },
+  { name: 'Cobrança de Documento Fiscal', href: '/em-desenvolvimento', icon: Receipt },
+  { name: 'Envio de Guias Fiscal', href: '/em-desenvolvimento', icon: FileCheck },
+  { name: 'Envio de Documentos Contábil', href: '/em-desenvolvimento', icon: FileText },
+  { name: 'Envio de Guias Contábil', href: '/em-desenvolvimento', icon: FileCheck },
+  { name: 'Cobrança de Recibo Aluguel', href: '/em-desenvolvimento', icon: DollarSign },
+  { name: 'Cobrança de Faturamento', href: '/em-desenvolvimento', icon: DollarSign },
 ]
 
 const gestaoNav = [
