@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, Building2, ChevronDown, FileText, DollarSign, Receipt, FileCheck, Users, LogOut, UserCog } from 'lucide-react'
+import { LayoutDashboard, Building2, ChevronDown, FileText, DollarSign, Receipt, FileCheck, Users, LogOut, UserCog, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -11,16 +11,17 @@ import { useUserRole } from '@/hooks/use-user-role'
 const mainNav = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Empresas', href: '/empresas', icon: Building2 },
+  { name: 'Contatos', href: '/contatos', icon: Users },
 ]
 
 const atividadesNav = [
   { name: 'Cobrança de Ponto Fiscal', href: '/atividades/cobranca-ponto-fiscal', icon: DollarSign },
-  { name: 'Cobrança de Documento Fiscal', href: '/atividades/cobranca-documento-fiscal', icon: Receipt },
-  { name: 'Envio de Guias Fiscal', href: '/atividades/envio-guias-fiscal', icon: FileCheck },
-  { name: 'Envio de Documentos Contábil', href: '/atividades/envio-documentos-contabil', icon: FileText },
-  { name: 'Envio de Guias Contábil', href: '/atividades/envio-guias-contabil', icon: FileCheck },
-  { name: 'Cobrança de Recibo Aluguel', href: '/atividades/cobranca-recibo-aluguel', icon: DollarSign },
-  { name: 'Cobrança de Faturamento', href: '/atividades/cobranca-faturamento', icon: DollarSign },
+  { name: 'Cobrança de Documento Fiscal', href: '/em-desenvolvimento', icon: Receipt },
+  { name: 'Envio de Guias Fiscal', href: '/em-desenvolvimento', icon: FileCheck },
+  { name: 'Envio de Documentos Contábil', href: '/em-desenvolvimento', icon: FileText },
+  { name: 'Envio de Guias Contábil', href: '/em-desenvolvimento', icon: FileCheck },
+  { name: 'Cobrança de Recibo Aluguel', href: '/em-desenvolvimento', icon: DollarSign },
+  { name: 'Cobrança de Faturamento', href: '/em-desenvolvimento', icon: DollarSign },
 ]
 
 const gestaoNav = [
@@ -42,124 +43,119 @@ export function Sidebar() {
     router.push('/login')
   }
 
-  // Se estiver carregando, mostra skeleton ou nada (opcional)
-  // Mas para UX é melhor renderizar o básico e depois atualizar
-
   return (
-    <div className="flex h-screen w-64 flex-col bg-sidebar text-sidebar-foreground overflow-y-auto">
-      <div className="flex h-16 items-center border-b border-sidebar-border px-6">
-        <h1 className="text-lg font-semibold text-balance">WSC Contabilidade</h1>
+    <div className="flex h-screen w-64 flex-col bg-[#1e3a5f] text-white overflow-y-auto border-r border-[#1e3a5f]">
+      {/* Logo Area */}
+      <div className="flex h-16 items-center gap-3 px-6 border-b border-white/10">
+        <div className="flex h-8 w-8 items-center justify-center rounded bg-white text-[#1e3a5f]">
+          <Zap className="h-4 w-4" />
+        </div>
+        <div>
+          <h1 className="text-sm font-bold text-white tracking-tight">WSC System</h1>
+          <p className="text-[10px] text-blue-200 font-medium">Enterprise Edition</p>
+        </div>
       </div>
 
-      <nav className="flex-1 space-y-2 px-3 py-4">
+      <nav className="flex-1 space-y-1 px-3 py-6">
         {/* Main Navigation */}
-        {mainNav.map((item) => (
-          <Link
-            key={item.name}
-            href={item.href}
-            className={cn(
-              'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-              isActive(item.href)
-                ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50'
-            )}
-          >
-            <item.icon className="h-5 w-5" />
-            {item.name}
-          </Link>
-        ))}
+        <div className="space-y-1">
+          {mainNav.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={cn(
+                'group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200',
+                isActive(item.href)
+                  ? 'bg-white/10 text-white shadow-sm'
+                  : 'text-blue-100 hover:bg-white/5 hover:text-white'
+              )}
+            >
+              <item.icon className={cn(
+                "h-5 w-5 transition-colors",
+                isActive(item.href) ? "text-blue-300" : "text-blue-300/70 group-hover:text-blue-300"
+              )} />
+              {item.name}
+            </Link>
+          ))}
+        </div>
 
         {/* Atividades Section */}
-        <div className="pt-4">
-          <button
-            onClick={() => setAtividadesOpen(!atividadesOpen)}
-            className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent/50 transition-colors"
-          >
-            <span>Atividades</span>
-            <ChevronDown
-              className={cn(
-                'h-4 w-4 transition-transform',
-                atividadesOpen && 'rotate-180'
-              )}
-            />
-          </button>
-          {atividadesOpen && (
-            <div className="space-y-1 pl-2">
-              {atividadesNav
-                .filter(item => {
-                  // Admin sees everything
-                  if (role === 'admin') return true
-                  // User (DP) only sees 'Cobrança de Ponto Fiscal'
-                  if (role === 'user') return item.href === '/atividades/cobranca-ponto-fiscal'
-                  return false
-                })
-                .map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-colors',
-                      isActive(item.href)
-                        ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                        : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/30'
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {item.name}
-                  </Link>
-                ))}
-            </div>
-          )}
+        <div className="pt-6">
+          <div className="px-3 mb-2">
+            <h3 className="text-xs font-semibold text-blue-300/50 uppercase tracking-wider">
+              Atividades
+            </h3>
+          </div>
+          <div className="space-y-0.5">
+            {atividadesNav
+              .filter(item => {
+                if (role === 'admin') return true
+                if (role === 'user') return item.href === '/atividades/cobranca-ponto-fiscal'
+                return false
+              })
+              .map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    'group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200',
+                    isActive(item.href)
+                      ? 'bg-white/10 text-white shadow-sm'
+                      : 'text-blue-100 hover:bg-white/5 hover:text-white'
+                  )}
+                >
+                  <item.icon className={cn(
+                    "h-4 w-4 transition-colors",
+                    isActive(item.href) ? "text-blue-300" : "text-blue-300/70 group-hover:text-blue-300"
+                  )} />
+                  <span className="truncate">{item.name}</span>
+                </Link>
+              ))}
+          </div>
         </div>
 
         {/* Gestão Section - Only for Admins */}
         {!loading && role === 'admin' && (
-          <div className="pt-4">
-            <button
-              onClick={() => setGestaoOpen(!gestaoOpen)}
-              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent/50 transition-colors"
-            >
-              <span>Gestão</span>
-              <ChevronDown
-                className={cn(
-                  'h-4 w-4 transition-transform',
-                  gestaoOpen && 'rotate-180'
-                )}
-              />
-            </button>
-            {gestaoOpen && (
-              <div className="space-y-1 pl-2">
-                {gestaoNav.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-colors',
-                      isActive(item.href)
-                        ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                        : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/30'
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
-            )}
+          <div className="pt-6">
+            <div className="px-3 mb-2">
+              <h3 className="text-xs font-semibold text-blue-300/50 uppercase tracking-wider">
+                Gestão
+              </h3>
+            </div>
+            <div className="space-y-0.5">
+              {gestaoNav.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    'group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200',
+                    isActive(item.href)
+                      ? 'bg-white/10 text-white shadow-sm'
+                      : 'text-blue-100 hover:bg-white/5 hover:text-white'
+                  )}
+                >
+                  <item.icon className={cn(
+                    "h-4 w-4 transition-colors",
+                    isActive(item.href) ? "text-blue-300" : "text-blue-300/70 group-hover:text-blue-300"
+                  )} />
+                  {item.name}
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </nav>
 
-      <div className="border-t border-sidebar-border p-4 space-y-3">
+      {/* Footer */}
+      <div className="border-t border-white/10 p-4">
         <Button
-          variant="outline"
+          variant="ghost"
           onClick={handleLogout}
-          className="w-full justify-start gap-2 text-sidebar-foreground hover:bg-destructive hover:text-destructive-foreground"
+          className="w-full justify-start gap-2 text-blue-200 hover:text-white hover:bg-white/10"
         >
           <LogOut className="h-4 w-4" />
-          Sair
+          Sair do Sistema
         </Button>
-        <p className="text-xs text-sidebar-foreground/50">Controle WSC v2.0</p>
       </div>
     </div>
   )

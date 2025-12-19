@@ -4,7 +4,11 @@ import type { Empresa } from "@/lib/supabase/types"
 export async function getEmpresas() {
   const supabase = createBrowserClient()
 
-  const { data, error } = await supabase.from("empresas").select("*").order("codigo", { ascending: true })
+  const { data, error } = await supabase
+    .from("empresas")
+    .select("*")
+    .or("excluida.is.null,excluida.eq.false")
+    .order("codigo", { ascending: true })
 
   if (error) {
     console.error("[v0] Error fetching empresas:", error)
@@ -56,7 +60,10 @@ export async function updateEmpresa(id: string, updates: Partial<Empresa>) {
 export async function deleteEmpresa(id: string) {
   const supabase = createBrowserClient()
 
-  const { error } = await supabase.from("empresas").update({ ativo: false }).eq("id", id)
+  const { error } = await supabase.from("empresas").update({
+    excluida: true,
+    data_exclusao: new Date().toISOString()
+  }).eq("id", id)
 
   if (error) {
     console.error("[v0] Error deleting empresa:", error)

@@ -75,57 +75,59 @@ export function EmpresaTable({ empresas, onUpdate }: EmpresaTableProps) {
         </div>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[100px]">Código</TableHead>
-              <TableHead>Razão Social</TableHead>
-              <TableHead>CNPJ</TableHead>
-              <TableHead>Telefone</TableHead>
-              <TableHead>Responsável</TableHead>
-              <TableHead className="text-center">Status</TableHead>
-              <TableHead className="w-[120px]">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredEmpresas.length === 0 ? (
+      <div className="rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table className="min-w-[1000px]">
+            <TableHeader className="bg-slate-50">
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground h-24">
-                  Nenhuma empresa encontrada
-                </TableCell>
+                <TableHead className="w-[80px] font-semibold text-[#1e3a5f]">Código</TableHead>
+                <TableHead className="min-w-[200px] font-semibold text-[#1e3a5f]">Razão Social</TableHead>
+                <TableHead className="w-[160px] font-semibold text-[#1e3a5f]">CNPJ</TableHead>
+                <TableHead className="w-[120px] font-semibold text-[#1e3a5f]">Telefone</TableHead>
+                <TableHead className="w-[140px] font-semibold text-[#1e3a5f]">Responsável</TableHead>
+                <TableHead className="w-[80px] text-center font-semibold text-[#1e3a5f]">Status</TableHead>
+                <TableHead className="w-[140px] font-semibold text-[#1e3a5f]">Ações</TableHead>
               </TableRow>
-            ) : (
-              filteredEmpresas.map((empresa) => (
-                <TableRow key={empresa.id}>
-                  <TableCell className="font-mono">{empresa.codigo}</TableCell>
-                  <TableCell className="font-medium">{empresa.razao_social}</TableCell>
-                  <TableCell className="font-mono text-muted-foreground">{empresa.cnpj || "-"}</TableCell>
-                  <TableCell className="text-muted-foreground">{empresa.telefone || "-"}</TableCell>
-                  <TableCell className="text-muted-foreground">{empresa.responsavel || "-"}</TableCell>
-                  <TableCell className="text-center">
-                    <Badge variant={empresa.ativo ? "default" : "outline"}>{empresa.ativo ? "Ativa" : "Inativa"}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Link href={`/empresas/${empresa.id}`}>
-                        <Button variant="ghost" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </Link>
-                      <Button variant="ghost" size="sm" onClick={() => setSelectedEmpresa(empresa)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(empresa)}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {filteredEmpresas.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground h-24">
+                    Nenhuma empresa encontrada
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                filteredEmpresas.map((empresa) => (
+                  <TableRow key={empresa.id}>
+                    <TableCell className="font-mono">{empresa.codigo}</TableCell>
+                    <TableCell className="font-medium">{empresa.razao_social}</TableCell>
+                    <TableCell className="font-mono text-muted-foreground">{empresa.cnpj || "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{empresa.telefone || "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{empresa.responsavel || "-"}</TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant={empresa.ativo ? "default" : "outline"}>{empresa.ativo ? "Ativa" : "Inativa"}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Link href={`/empresas/${empresa.id}`}>
+                          <Button variant="ghost" size="sm">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                        <Button variant="ghost" size="sm" onClick={() => setSelectedEmpresa(empresa)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDelete(empresa)}>
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       {selectedEmpresa && (

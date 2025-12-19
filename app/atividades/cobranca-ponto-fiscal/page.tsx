@@ -450,8 +450,10 @@ export default function CobrancaPontoFiscalPage() {
       SUCESSO: { variant: "default", label: "Enviado", className: "bg-green-500 hover:bg-green-600 text-white" },
       ERRO: { variant: "destructive", label: "Erro" },
       FALHA: { variant: "destructive", label: "Erro" },
+      ERROR: { variant: "destructive", label: "Erro" },
     }
-    return variants[normalizedStatus] || { variant: "secondary" as const, label: status || "Desconhecido" }
+    // Also check first word for compound statuses like "ERRO NO ENVIO"
+    return variants[normalizedStatus] || variants[normalizedStatus.split(" ")[0]] || { variant: "secondary" as const, label: status || "Desconhecido" }
   }
 
   function getStatusPontoBadge(status: StatusPonto) {
@@ -659,8 +661,9 @@ export default function CobrancaPontoFiscalPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 text-destructive"
-                                onClick={() => {
+                                className="h-8 w-8 text-destructive hover:scale-110 hover:bg-destructive/10 transition-all duration-200"
+                                onClick={(e) => {
+                                  e.stopPropagation()
                                   setEmpresaParaRemover(empresa)
                                   setDialogRemoverAberto(true)
                                 }}

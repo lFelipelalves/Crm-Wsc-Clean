@@ -74,8 +74,9 @@ export function AudioUpload({ onUploadComplete, maxSize = 25 }: AudioUploadProps
       setProgress(100)
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || "Erro ao fazer upload")
+        const errorData = await response.json()
+        const errorMessage = errorData.details?.message || errorData.error || "Erro ao fazer upload"
+        throw new Error(errorMessage)
       }
 
       const data = await response.json()
