@@ -49,7 +49,7 @@ import {
   getEstatisticas,
 } from "@/lib/supabase/services/empresas-cobranca-ponto"
 
-import { buscarLogsPorCompetencia } from "@/lib/supabase/services/log-cobranca-ponto"
+import { buscarLogsPorCompetencia, getEstatisticasCobranca } from "@/lib/supabase/services/log-cobranca-ponto"
 
 import type {
   Empresa,
@@ -173,9 +173,18 @@ export default function CobrancaPontoFiscalPage() {
   async function carregarDados() {
     setLoading(true)
     try {
-      const [empresas, stats] = await Promise.all([getEmpresasCobrancaPonto(), getEstatisticas()])
+      const [empresas, statsEmpresas, statsLogs] = await Promise.all([
+        getEmpresasCobrancaPonto(),
+        getEstatisticas(),
+        getEstatisticasCobranca(),
+      ])
       setEmpresasCobranca(empresas)
-      setEstatisticas(stats)
+      setEstatisticas({
+        ...statsEmpresas,
+        aguardando: statsLogs.aguardando,
+        enviado: statsLogs.enviados,
+        erro: statsLogs.erros,
+      })
     } catch (error) {
       console.error("Erro ao carregar dados:", error)
       toast({
@@ -264,7 +273,7 @@ export default function CobrancaPontoFiscalPage() {
     if (sucesso) {
       setEmpresasCobranca((prev) => prev.map((e) => (e.id === id ? { ...e, status_ponto: status } : e)))
       const stats = await getEstatisticas()
-      setEstatisticas(stats)
+      setEstatisticas((prev) => ({ ...prev, ...stats }))
     }
   }
 
@@ -321,10 +330,19 @@ export default function CobrancaPontoFiscalPage() {
       return
     }
 
-    if (!mensagemCobranca.trim() && tipoMensagem === "TEXTO") {
+    if (tipoMensagem === "TEXTO" && !mensagemCobranca.trim()) {
       toast({
         title: "Digite uma mensagem",
         description: "A mensagem de cobrança é obrigatória.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (tipoMensagem === "AUDIO" && !arquivoAudioUrl) {
+      toast({
+        title: "Faça o upload do áudio",
+        description: "Você selecionou o tipo Áudio, mas ainda não carregou o arquivo.",
         variant: "destructive",
       })
       return
@@ -371,8 +389,14 @@ export default function CobrancaPontoFiscalPage() {
         })
 
         setEmpresasSelecionadasCobranca([])
-        setPollingAtivo(true)
+        setMensagemCobranca("Olá! Solicitamos o envio do ponto dos funcionários referente ao mês atual. Por favor, envie o mais breve possível. Obrigado!")
+        setArquivoAudioUrl("")
+        setDataAgendamento("")
+        setHoraAgendamento("14:00")
+        setTipoMensagem("TEXTO")
+        setModoEnvio("agora")
 
+        setPollingAtivo(true)
         setTimeout(() => setPollingAtivo(false), 600000)
 
         await carregarDados()
@@ -615,7 +639,7 @@ export default function CobrancaPontoFiscalPage() {
                         <TableHead>Telefone Cobrança</TableHead>
                         <TableHead className="w-[80px]">Dia</TableHead>
                         <TableHead className="w-[140px]">Status Ponto</TableHead>
-                        <TableHead className="w-[60px]">Ações</TableHead>
+                        <TableHead className="w-[80px]">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -906,7 +930,7 @@ export default function CobrancaPontoFiscalPage() {
                                 : "-"}
                             </TableCell>
                             <TableCell className="max-w-[200px] truncate">
-                              {log.mensagem_enviada || log.mensagem}
+                              {log.mensagem_enviada}
                             </TableCell>
                           </TableRow>
                         )
@@ -974,7 +998,7 @@ export default function CobrancaPontoFiscalPage() {
                 <Label>Dia de Cobrança</Label>
                 <Select
                   value={String(diaCobrancaSelecionado)}
-                  onValueChange={(v) => setDiaCobrancaSelecionado(Number(v))}
+                  onValueChange={(v) => setDialogAdicionarAberto ? setDiaCobrancaSelecionado(Number(v)) : null}
                 >
                   <SelectTrigger>
                     <SelectValue />
